@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>笔记</title>
+    <link rel="stylesheet" href="../../static/css/bootstrap.min.css" />
+    <script type="text/javascript" src="../../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../static/js/bootstraps.min.css"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="/">主页</a>&nbsp;&nbsp;
+        <a href="/logout">退出</a>
+        <h2><strong>{{ note["title"] }}</strong></h2>
+        <p>{{ note["note"] }}</p>
+        <p>用户: {{ note["account"] }}  &nbsp;时间: {{ note["time"] }}</p>
+    </div>
+</body>
+</html>

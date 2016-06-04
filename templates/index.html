@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <link rel="stylesheet" href="../../static/css/bootstrap.min.css" />
+    <script type="text/javascript" src="../../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../static/js/bootstraps.min.css"></script>
+</head>
+<body>
+    <div class="col-md-4">
+        <div class="container">
+            <h1 class="page-header">背单词</h1>
+            <a href="/logout">退出</a>&nbsp;&nbsp;
+            <a href="/select?status=4">四级词汇</a>&nbsp;&nbsp;
+            <a href="/select?status=6">六级词汇</a>&nbsp;&nbsp;
+            <a href="/select?status=8">雅思词汇</a>&nbsp;&nbsp;
+            <a href="/select?status=10">托福词汇</a><br /><br />
+            <a href="/reselect?status=0&readcount={{ content }}">重背</a>&nbsp;&nbsp;
+            <a href="/reselect?status=1">从头背</a><br /><br />
+            <a href="/altercount">设置每日背单词数</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                单词
+            </div>
+            <div class="container" style="width: 400px;height: 200px;">
+                <h2>{{ words["word"] }}</h2>
+                <p>解释: {{ words["explain"] }}</p>
+                <p>例句: {{ words["example"] }}</p>
+                <a href="/?index={{ page+1 }}">>>>下一个</a>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                记笔记
+            </div>
+        </div>
+        <form action="/addnote" method="post">
+            {% raw xsrf_form_html() %}
+            <div class="form-group">
+                <input type="text" name="title" placeholder="请输入笔记标题"><br /><br />
+                <textarea name="content" style="width: 300px;height: 100px;" placeholder="请输入笔记内容"></textarea><br /><br />
+
+                <label for="noshare">不共享</label>
+                <input type="radio" name="auth" value="1" id="noshare" checked="checked">
+                <label for="share">共享</label>
+                <input type="radio" name="auth" value="2" id="share"><br /><br />
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form><br />
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                笔记共享
+            </div>
+            <div class="container">
+                {% if exist == 1 %}
+                    {% for share in shares %}
+                         <strong><a href="/shownote?title={{ share['title'] }}&account={{ share['account'] }}">{{ share["title"] }}</a></strong>
+                         <p>用户: {{ share["account"] }}</p>
+                    {% end %}
+                {% end %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

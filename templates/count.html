@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设置单词数量</title>
+    <link rel="stylesheet" href="../../static/css/bootstrap.min.css" />
+    <script type="text/javascript" src="../../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../static/js/bootstraps.min.css"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-header">设置每日背单词数量:</h1>
+        <form class="form-horizontal" action="/altercount" method="post">
+            {% raw xsrf_form_html() %}
+            <input type="text" name="count" placeholder="请输入单词数量">&nbsp;
+            <button class="btn btn-primary" type="submit">确定</button>
+        </form>
+    </div>
+</body>
+</html>
