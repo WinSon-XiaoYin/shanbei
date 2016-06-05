@@ -39,7 +39,7 @@ class RegisterHandler(BaseHandler):
         if db.user.find({"account": account}).count() > 0:
             return self.write("用户名已存在")
 
-        db.user.insert({"account": account, "password": password, "user_status": None, "count": None, "read_status": "0", "today_time": None})
+        db.user.insert({"account": account, "password": password, "user_status": None, "count": None, "read_status": "0", "today_time": str(datetime.date.today()), "read": "1"})
         self.set_secure_cookie("user", account, expires_days=None)
         return self.redirect("/")
 
@@ -86,46 +86,13 @@ class IndexHandler(BaseHandler):
         if not content['count']:
             return self.render("count.html")
 
-        if content['today_time'] == None:
-            db.user.update({"account": user}, {"$set": {"today_time": str(datetime.date.today())}})
-            
-            if content['user_status'] == "4":
-                words = db.cet4.find().limit(int(content['count'])).skip(int(content['read_status']))
-                for word in words:
-                    self.daywords.append(word)
 
-            if content['user_status'] == "6":
-                words = db.cet6.find().limit(int(content['count'])).skip(int(content['read_status']))
-                for word in words:
-                    self.daywords.append(word)
-        else:
-            content = db.user.find_one({"account": user})
-            result = compareTime(user, content["today_time"])
-            if result == 0:
+        content = db.user.find_one({"account": user})
+        result = compareTime(user, content["today_time"])
 
-                del self.temp[:]
+        if result == 0:
+            if content['read'] == "1":
 
-                if len(self.daywords) < int(content['count']):
-                    answer = int(content['count']) - len(self.daywords)
-                    if content['user_status'] == "4":
-                        words = db.cet4.find().limit(answer).skip(int(content['read_status']))
-                        for word in words:
-                            self.daywords.append(word)
-
-                    if content['user_status'] == "6":
-                        words = db.cet6.find().limit(answer).skip(int(content['read_status']))
-                        for word in words:
-                            self.daywords.append(word)
-
-                for i in range(0, int(content['count'])):
-                    self.temp.append(self.daywords[i])
-
-                del self.daywords[:]
-
-                for i in range(0, int(content['count'])):
-                    self.daywords.append(self.temp[i])
-            else:
-                del self.daywords[:]
                 if content['user_status'] == "4":
                     words = db.cet4.find().limit(int(content['count'])).skip(int(content['read_status']))
                     for word in words:
@@ -136,6 +103,25 @@ class IndexHandler(BaseHandler):
                     for word in words:
                         self.daywords.append(word)
 
+                db.user.update({"account": user}, {"$set": {"read": "0"}})    
+            else:
+                pass
+
+        else:
+            index = "0"
+            if content['user_status'] == "4":
+                words = db.cet4.find().limit(int(content['count'])).skip(int(content['read_status']))
+                for word in words:
+                        self.daywords.append(word)
+
+            if content['user_status'] == "6":
+                words = db.cet6.find().limit(int(content['count'])).skip(int(content['read_status']))
+                for word in words:
+                        self.daywords.append(word)
+
+            db.user.update({"account": user}, {"$set": {"read": "0"}})
+
+
         shares = db.note.find({"$or": [{"share_status": "2"}, {"account": user}]})
 
         if not shares:
@@ -145,17 +131,16 @@ class IndexHandler(BaseHandler):
 
         if int(index) < len(self.daywords): 
             num_index = int(index) 
-            print num_index
-            db.user.update({"account": user}, {"$set": {"read_status": index}})  
+            tempindex = int(content['read_status']) + 1
+            db.user.update({"account": user}, {"$set": {"read_status": str(tempindex)}})  
         else:
             num_index = len(self.daywords)-1
-
 
         if int(content['read_status']) != 0:
             return self.render("index.html", words=self.daywords[num_index], content=int(content['read_status'])-1, exist=exist, shares=shares, page=num_index)
         else:
             return self.render("index.html", words=self.daywords[num_index], content="0", exist=exist, shares=shares, page=num_index)
-
+ 
 class OutHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -181,7 +166,7 @@ class AltercountHandler(BaseHandler):
         user = self.get_current_user()
         if not count:
             return self.write("输入不能为空")
-        db.user.update({"account": user}, {"$set": {"count": count}})
+        db.user.update({"account": user}, {"$set": {"count": count, "read": "1"}})
         return self.redirect('/')
 
 class AddnoteHandler(BaseHandler):
